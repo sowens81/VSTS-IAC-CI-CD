@@ -1,0 +1,140 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "18.02.02.03",
+  "parameters": {
+    "AppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the application to be deployed (Should not include any spaces or special characters in the name)"
+      }
+    },
+    "EnviromentName": {
+      "type": "string",
+      "allowedValues": [
+        "DEV",
+        "TST",
+        "UAT",
+        "STG",
+        "PRD"
+      ],
+      "defaultValue": "Dev",
+      "metadata": {
+        "description": "Name of the deployment enviroment (Should be Dev, Tst, Uat, Stg, Prd)"
+      }
+    },
+    "SubnetOct": {
+      "type": "string",
+      "metadata": {
+        "description": "First to Sets of a Subnet Ie 10.0 or 10.1 or 10.3 etc"
+      }
+    },
+    "NSG1": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of NSG1 create on the NSG Arm Template"
+      }
+    }
+  },
+  "variables": {
+    "VNET_Name": "[concat('Vnet_',parameters('AppName'),'_',parameters('EnviromentName'))]",
+    "VNET_variablePrefix": "[concat(parameters('SubnetOct'),'.0.0/16')]",
+    "VNET_variableSubnet1Name": "[concat('Sub_',parameters('AppName'),'_',parameters('EnviromentName'),'_DMZ')]",
+    "VNET_variableSubnet1Prefix": "[concat(parameters('SubnetOct'),'.10.0/24')]",
+    "VNET_variableSubnet2Name": "[concat('Sub_',parameters('AppName'),'_',parameters('EnviromentName'),'_APP')]",
+    "VNET_variableSubnet2Prefix": "[concat(parameters('SubnetOct'),'.20.0/24')]",
+    "VNET_variableSubnet3Name": "[concat('Sub_',parameters('AppName'),'_',parameters('EnviromentName'),'_DB')]",
+    "VNET_variableSubnet3Prefix": "[concat(parameters('SubnetOct'),'.30.0/24')]",
+    "VNET_variableSubnet4Name": "GatewaySubnet",
+    "VNET_variableSubnet4Prefix": "[concat(parameters('SubnetOct'),'.0.0/28')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('VNET_Name')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-10-01",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[variables('VNET_Name')]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('VNET_variablePrefix')]" 
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('VNET_variableSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VNET_variableSubnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('NSG1'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('VNET_variableSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VNET_variableSubnet2Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('VNET_variableSubnet3Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VNET_variableSubnet3Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('VNET_variableSubnet4Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VNET_variableSubnet4Prefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+      "outputs": {
+        "VNET_Name": {
+          "type": "string",
+          "value": "[variables('VNET_Name')]"
+        },
+        "VNET_Network_Address": {
+          "type": "string",
+          "value": "[variables('VNET_variablePrefix')]"
+        },
+        "DMZ_Subnet_Name": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet1Name')]"
+        },
+        "DMZ_Network_Address": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet1Prefix')]"
+        },
+        "App_Subnet_Name": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet2Name')]"
+        },
+        "App_Network_Address": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet2Prefix')]"
+        },
+        "DB_Subnet_Name": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet3Name')]"
+        },
+        "DB_Network_Address": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet3Prefix')]"
+        },
+        "GW_Subnet_Name": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet4Name')]"
+        },
+        "GW_Network_Address": {
+          "type": "string",
+          "value": "[variables('VNET_variableSubnet4Prefix')]"
+        }
+      }
+    }

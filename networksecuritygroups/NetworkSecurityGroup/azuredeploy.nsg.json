@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the application to be deployed (Should not include any spaces or special characters in the name)"
+      }
+    },
+    "EnviromentName": {
+      "type": "string",
+      "allowedValues": [
+        "DEV",
+        "TST",
+        "UAT",
+        "STG",
+        "PRD"
+      ],
+      "defaultValue": "Dev",
+      "metadata": {
+        "description": "Name of the deployment enviroment (Should be Dev, Tst, Uat, Stg, Prd)"
+      }
+    }
+  },
+  "variables": {
+    "NSGPrefix": "[concat('NSG_',parameters('AppName'),'_',parameters('EnviromentName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-03-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[concat(variables('NSGPrefix'),'_DMZ')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[concat(variables('NSGPrefix'),'_DMZ')]"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "HTTPS",
+            "properties": {
+              "description": "Allow HTTPS",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "HTTP",
+            "properties": {
+              "description": "Allow HTTP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    }
+  ],
+      "outputs": {
+        "NSG1": {
+          "type": "string",
+          "value": "[concat(variables('NSGPrefix'),'_DMZ')]"
+        }
+      }
+}
+
+

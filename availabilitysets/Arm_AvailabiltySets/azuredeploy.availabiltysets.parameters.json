@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "18.02.02.01",
+  "parameters": {
+    "AppName": {
+      "value": "application1"
+    },
+    "EnviromentName": {
+      "value": "DEV"
+    },
+    "AppComp1": {
+      "value": "AS_Set1"
+    }
+  }
+}

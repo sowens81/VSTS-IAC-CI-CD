@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "18.02.02.01",
+  "parameters": {
+    "AppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the application to be deployed (Should not include any spaces or special characters in the name)"
+      }
+    },
+    "EnviromentName": {
+      "type": "string",
+      "allowedValues": [
+        "DEV",
+        "TST",
+        "UAT",
+        "STG",
+        "PRD"
+      ],
+      "defaultValue": "Dev",
+      "metadata": {
+        "description": "Name of the deployment enviroment (Should be Dev, Tst, Uat, Stg, Prd)"
+      }
+    },
+    "AppComp1": {
+      "type": "string",
+      "metadata": {
+        "description": "Short Name for the Application Componet?)"
+      }
+    }
+  },
+  "variables": {
+    "AS1Name": "[concat('AS_',parameters('AppName'),'_',parameters('EnviromentName'),'_',parameters('AppComp1'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('AS1Name')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2017-12-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "platformFaultDomainCount": "2",
+        "platformUpdateDomainCount": "4"
+      }
+    }
+  ],
+  "outputs": {
+    "NSG1": {
+      "type": "string",
+      "value": "[variables('AS1Name')]"
+    }
+  }
+}
